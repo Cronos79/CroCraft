@@ -30,25 +30,29 @@ void ATerrainGenerator::Initialize(int32 chunkSize, int32 cubeSize)
 {
 	ChunkSize = chunkSize;
 	CubeSize = cubeSize;
-	ChunkData = Make1DArray();
+	Chunks.Init(FChunkData(), 1);
+	Chunks.EmplaceAt(0, Make1DArray());
 }
 
 void ATerrainGenerator::GenerateChunk(int32 ChunkX, int32 ChunkY, int32 ChunkZ)
 {
-	// for each loop through the 1D array
-	for (int32 i = 0; i < ChunkData.Num(); i++)
-	{
-		int32 X, Y, Z;
-		GetXYZCoordinates(i, X, Y, Z);
-		FCroCubeData CubeData = GetCubeData(X, Y, Z);
-		FNeighbors Neighbors = GetNeighbors(X, Y, Z, ChunkData);
-		if (NextToAir(X, Y, Z, ChunkData))
-		{
-			// make a vector and spawn a cube
-			FVector Location = FVector(X * CubeSize, Y * CubeSize, Z * CubeSize);
-			GetWorld()->SpawnActor<AActor>(SMCube, Location, FRotator::ZeroRotator);
-		}
-	}	
+	//AsyncTask(ENamedThreads::AnyBackgroundThreadNormalTask, [ChunkX, ChunkY, ChunkZ, Chunks]()
+	//	{
+	//		// for each loop through the 1D array
+	//		for (int32 i = 0; i < Chunks[0].ChunkData.Num(); i++)
+	//		{
+	//			int32 X, Y, Z;
+	//			GetXYZCoordinates(i, X, Y, Z);
+	//			FCroCubeData CubeData = GetCubeData(X, Y, Z);
+	//			FNeighbors Neighbors = GetNeighbors(X, Y, Z, Chunks[0].ChunkData);
+	//			if (NextToAir(X, Y, Z, Chunks[0].ChunkData))
+	//			{
+	//				// make a vector and spawn a cube
+	//				FVector Location = FVector(X * CubeSize, Y * CubeSize, Z * CubeSize);
+	//				GetWorld()->SpawnActor<AActor>(SMCube, Location, FRotator::ZeroRotator);
+	//			}
+	//		}
+	//	});
 }
 
 FCroCubeData ATerrainGenerator::GetCubeData(int32 X, int32 Y, int32 Z)

@@ -10,12 +10,20 @@ USTRUCT(BlueprintType)
 struct FCroCubeData
 {
 	GENERATED_BODY()
-
 public:
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
 	int32 Index = -1;
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
 	bool bIsAir = false;
+};
+
+USTRUCT(BlueprintType)
+struct FChunkData
+{
+	GENERATED_BODY()
+public:
+	TArray<FCroCubeData> ChunkData;
+	//Vector3 ChunkLocation;
 };
 
 USTRUCT(BlueprintType)
@@ -83,7 +91,7 @@ public:
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 	int32 ArraySizeTotal = 0;
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
-	TArray<FCroCubeData> ChunkData;
+	TArray<FChunkData> Chunks;
 	
 	
 };
