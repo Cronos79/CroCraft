@@ -56,7 +56,7 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 	UFUNCTION(BlueprintCallable)
-	void Initialize(int32 sizeX, int32 sizeY, int32 sizeZ);
+	void Initialize(int32 chunkSize, int32 cubeSize);
 	UFUNCTION(BlueprintCallable)
 	void GenerateChunk(int32 X, int32 Y, int32 Z);
 	UFUNCTION(BlueprintCallable)
@@ -69,7 +69,7 @@ public:
 	bool NextToAir(int32 x, int32 y, int32 z, TArray<FCroCubeData> OneDArray);
 
 private:
-	TArray<FCroCubeData> Make1DArray(int32 X, int32 Y, int32 Z);
+	TArray<FCroCubeData> Make1DArray();
 	
 	
 
@@ -77,11 +77,9 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TSubclassOf<AActor> SMCube;
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
-	int32 ArraySizeX = 10;
+	int32 CubeSize = 100;
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
-	int32 ArraySizeY = 10;
-	UPROPERTY(BlueprintReadWrite, EditAnywhere)
-	int32 ArraySizeZ = 10;
+	int32 ChunkSize = 10;
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 	int32 ArraySizeTotal = 0;
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)

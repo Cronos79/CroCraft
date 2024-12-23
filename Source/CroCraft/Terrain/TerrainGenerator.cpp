@@ -22,20 +22,18 @@ void ATerrainGenerator::BeginPlay()
 void ATerrainGenerator::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
 }
 
 
 
-void ATerrainGenerator::Initialize(int32 sizeX, int32 sizeY, int32 sizeZ)
+void ATerrainGenerator::Initialize(int32 chunkSize, int32 cubeSize)
 {
-	ArraySizeX = sizeX;
-	ArraySizeY = sizeY;
-	ArraySizeZ = sizeZ;
-	ChunkData = Make1DArray(ArraySizeX, ArraySizeY, ArraySizeZ);
+	ChunkSize = chunkSize;
+	CubeSize = cubeSize;
+	ChunkData = Make1DArray();
 }
 
-void ATerrainGenerator::GenerateChunk(int32 X, int32 Y, int32 Z)
+void ATerrainGenerator::GenerateChunk(int32 ChunkX, int32 ChunkY, int32 ChunkZ)
 {
 	// for each loop through the 1D array
 	for (int32 i = 0; i < ChunkData.Num(); i++)
@@ -47,7 +45,7 @@ void ATerrainGenerator::GenerateChunk(int32 X, int32 Y, int32 Z)
 		if (NextToAir(X, Y, Z, ChunkData))
 		{
 			// make a vector and spawn a cube
-			FVector Location = FVector(X * 100, Y * 100, Z * 100);
+			FVector Location = FVector(X * CubeSize, Y * CubeSize, Z * CubeSize);
 			GetWorld()->SpawnActor<AActor>(SMCube, Location, FRotator::ZeroRotator);
 		}
 	}	
@@ -56,13 +54,13 @@ void ATerrainGenerator::GenerateChunk(int32 X, int32 Y, int32 Z)
 FCroCubeData ATerrainGenerator::GetCubeData(int32 X, int32 Y, int32 Z)
 {
 	FCroCubeData CubeData;
-	if ((X * ArraySizeY * ArraySizeZ) + (Y * ArraySizeZ) + Z > (ArraySizeTotal - 1))
+	if ((X * ChunkSize * ChunkSize) + (Y * ChunkSize) + Z > (ArraySizeTotal - 1))
 	{
 		CubeData.Index = 0;
 		CubeData.bIsAir = true;
 		return CubeData;
 	}
-	CubeData.Index = (X * ArraySizeY * ArraySizeZ) + (Y * ArraySizeZ) + Z;
+	CubeData.Index = (X * ChunkSize * ChunkSize) + (Y * ChunkSize) + Z;
 	return CubeData;
 }
 
@@ -79,7 +77,7 @@ FNeighbors ATerrainGenerator::GetNeighbors(int32 x, int32 y, int32 z, TArray<FCr
 		Neighbors.Down = OneDArray[GetCubeData(x, y, z - 1).Index].Index;
 	}
 	
-	if (z + 1 >= ArraySizeY)
+	if (z + 1 >= ChunkSize)
 	{
 		Neighbors.Up = -1;
 	}
@@ -97,7 +95,7 @@ FNeighbors ATerrainGenerator::GetNeighbors(int32 x, int32 y, int32 z, TArray<FCr
 		Neighbors.Right = OneDArray[GetCubeData(x - 1, y, z).Index].Index;
 	}
 	
-	if (x + 1 >= ArraySizeX)
+	if (x + 1 >= ChunkSize)
 	{
 		Neighbors.Left = -1;
 	}
@@ -106,7 +104,7 @@ FNeighbors ATerrainGenerator::GetNeighbors(int32 x, int32 y, int32 z, TArray<FCr
 		Neighbors.Left = OneDArray[GetCubeData(x + 1, y, z).Index].Index;
 	}
 
-	if (y + 1 >= ArraySizeZ)
+	if (y + 1 >= ChunkSize)
 	{
 		Neighbors.Forward = -1;
 	}
@@ -129,9 +127,9 @@ FNeighbors ATerrainGenerator::GetNeighbors(int32 x, int32 y, int32 z, TArray<FCr
 
 void ATerrainGenerator::GetXYZCoordinates(int32 Index, int32& X, int32& Y, int32& Z)
 {
-	X = Index / (ArraySizeY * ArraySizeZ);
-	Y = (Index % (ArraySizeY * ArraySizeZ)) / ArraySizeZ;
-	Z = (Index % (ArraySizeY * ArraySizeZ)) % ArraySizeZ;
+	X = Index / (ChunkSize * ChunkSize);
+	Y = (Index % (ChunkSize * ChunkSize)) / ChunkSize;
+	Z = (Index % (ChunkSize * ChunkSize)) % ChunkSize;
 }
 
 bool ATerrainGenerator::NextToAir(int32 x, int32 y, int32 z, TArray<FCroCubeData> OneDArray)
@@ -147,19 +145,19 @@ bool ATerrainGenerator::NextToAir(int32 x, int32 y, int32 z, TArray<FCroCubeData
 	return bNextToAir;
 }
 
-TArray<FCroCubeData> ATerrainGenerator::Make1DArray(int32 X, int32 Y, int32 Z)
+TArray<FCroCubeData> ATerrainGenerator::Make1DArray()
 {
 	// Create a 3d array
 	TArray<FCroCubeData> Array;
-	Array.Init(FCroCubeData(), X * Y * Z);
-	for (int32 i = 0; i < X; i++)
+	Array.Init(FCroCubeData(), ChunkSize * ChunkSize * ChunkSize);
+	for (int32 i = 0; i < ChunkSize; i++)
 	{
-		for (int32 j = 0; j < Y; j++)
+		for (int32 j = 0; j < ChunkSize; j++)
 		{
-			for (int32 k = 0; k < Z; k++)
+			for (int32 k = 0; k < ChunkSize; k++)
 			{
 				ArraySizeTotal++;
-				Array[GetCubeData(i, j, k).Index].Index = i * Y * Z + j * Z + k;
+				Array[GetCubeData(i, j, k).Index].Index = i * ChunkSize * ChunkSize + j * ChunkSize + k;
 			}
 		}
 	}
